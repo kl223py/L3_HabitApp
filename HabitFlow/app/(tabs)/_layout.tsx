@@ -12,6 +12,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        tabBarStyle: { backgroundColor: '#7B61FF', borderTopColor: '#7B61FF' },
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarButton: HapticTab,
@@ -21,8 +22,14 @@ export default function TabLayout() {
         options={{
           title: 'Habits',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="checkmark.seal.fill" color={color} />,
+          headerShown: true,
+          headerTitle: 'Habits',
+          headerTitleAlign: 'center',
+          headerTitleStyle: { fontSize: 30, color: '#fff' },
+          headerStyle: { backgroundColor: '#7B61FF' },
+          headerTintColor: '#fff',
         }}
-      /> 
+      />
     </Tabs>
   );
 }

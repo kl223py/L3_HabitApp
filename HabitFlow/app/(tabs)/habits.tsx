@@ -4,7 +4,7 @@ import React from "react";
 export default function habits() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Habits</Text>
+
     </View>
   );
 }
@@ -15,10 +15,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#f5f5f5',
-  },
-  title: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#333',
   }
 });
