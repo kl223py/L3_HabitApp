@@ -4,6 +4,10 @@ import React from "react";
 export default function habits() {
   return (
     <View style={styles.container}>
+      <Text style={styles.instructionsText}>
+        To add a new habit, press the &quot;+&quot; button below.
+      </Text>
+
       <TouchableOpacity
       style={styles.addButton}
       activeOpacity={0.5}
@@ -18,8 +22,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
     backgroundColor: '#f5f5f5',
+  },
+  instructionsText: {
+    fontSize: 18,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   addButton: {
     position: 'absolute',
@@ -41,5 +52,5 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: '#fff',
     fontWeight: '300',
-  }
+  },
 });
