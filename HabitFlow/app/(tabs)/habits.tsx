@@ -8,6 +8,27 @@ export default function Habits() {
   const [allowMissedDays, setAllowMissedDays] = useState(false);
   const [maxMissedDays, setMaxMissedDays] = useState('');
 
+  const handleAddHabit = () => {
+    if (!habitName.trim()) {
+      alert('Please enter a habit name.');
+      return;
+    }
+
+    const habitId = habitName.toLowerCase().replace(/\s+/g, '-');
+
+    const options = allowMissedDays ? {
+      allowMissedDays: true,
+      maxMissedDays: parseInt(maxMissedDays) || 0,
+    } : undefined;
+
+    console.log('Creating habit:', habitId, habitDescription || habitName, options)
+
+    setHabitName('');
+    setHabitDescription('');
+    setAllowMissedDays(false);
+    setMaxMissedDays('');
+    setModalVisible(false);
+  }
 
   return (
     <View style={styles.container}>
@@ -71,6 +92,13 @@ export default function Habits() {
             )}
 
             <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.saveButton]}
+                onPress={handleAddHabit}
+              >
+
+                <Text style={styles.saveButtonText}> Save</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.closeButton]}
                 onPress={() => {
@@ -161,6 +189,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 5,
+  },
+  saveButton: {
+    backgroundColor: '#6C63FF',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   closeButton: {
     backgroundColor: '#A58BFF',
