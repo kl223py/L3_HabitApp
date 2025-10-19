@@ -1,6 +1,9 @@
 import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch, FlatList, Alert } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HabitManager from 'habit_tracker_module';
+
+const habitManager = HabitManager;
 
 interface Habit {
   id: string;
@@ -17,6 +20,30 @@ export default function Habits() {
   const [allowMissedDays, setAllowMissedDays] = useState(false);
   const [maxMissedDays, setMaxMissedDays] = useState('');
   const [habits, setHabits] = useState<Habit[]>([]);
+
+  useEffect(() => {
+    const initializeHabitManager = async () => {
+      const storedHabits = await AsyncStorage.getItem('habits');
+      if (storedHabits) {
+        const habits: Habit[] = JSON.parse(storedHabits);
+        habits.forEach(habit => {
+          try {
+            habitManager.createHabit(
+              habit.id,
+              habit.description,
+              habit.allowMissedDays ? {
+                allowMissedDays: habit.allowMissedDays,
+                maxMissedDays: habit.maxMissedDays || 0,
+              } : undefined
+            );
+          } catch (error) {
+            console.error(`Error initializing habit ${habit.id}:`, error);
+          }
+        }) 
+      }
+    }
+    initializeHabitManager();
+  }, [])
 
   const handleAddHabit = async () => {
     if (!habitName.trim()) {
