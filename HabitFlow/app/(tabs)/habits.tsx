@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View, TouchableOpacity} from "react-native";
-import React from "react";
+import { StyleSheet, Text, View, TouchableOpacity, Modal} from "react-native";
+import React, { useState } from "react";
 
-export default function habits() {
+export default function Habits() {
+  const [modalVisible, setModalVisible] = useState(false);
   return (
     <View style={styles.container}>
       <Text style={styles.instructionsText}>
@@ -11,9 +12,34 @@ export default function habits() {
       <TouchableOpacity
       style={styles.addButton}
       activeOpacity={0.5}
+      onPress={() => setModalVisible(true)}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
+
+      <Modal
+      animationType="slide"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => setModalVisible(false)}
+      >
+
+
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add new Habit</Text>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.closeButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -53,4 +79,50 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '300',
   },
+  modalOverlay:{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent:{
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 25,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle:{
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
+  },
+  buttonContainer:{
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 10,
+  },
+  button:{
+    flex: 1,
+    height: 45,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  closeButton:{
+    backgroundColor: '#A58BFF',
+  },
+  cancelButtonText:{
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  }
 });
