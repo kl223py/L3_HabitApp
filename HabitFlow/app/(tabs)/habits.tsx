@@ -1,27 +1,31 @@
-import { StyleSheet, Text, View, TouchableOpacity, Modal} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput } from "react-native";
 import React, { useState } from "react";
 
 export default function Habits() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [habitName, setHabitName] = useState('');
+  const [habitDescription, setHabitDescription] = useState('');
+
   return (
     <View style={styles.container}>
       <Text style={styles.instructionsText}>
         To add a new habit, press the &quot;+&quot; button below.
       </Text>
 
+
       <TouchableOpacity
-      style={styles.addButton}
-      activeOpacity={0.5}
-      onPress={() => setModalVisible(true)}
+        style={styles.addButton}
+        activeOpacity={0.5}
+        onPress={() => setModalVisible(true)}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
       <Modal
-      animationType="slide"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => setModalVisible(false)}
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
       >
 
 
@@ -29,10 +33,27 @@ export default function Habits() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add new Habit</Text>
 
+            <TextInput
+              style={styles.input}
+              placeholder="Habit Name (e.g., 'Exercise')"
+              value={habitName}
+              onChangeText={setHabitName}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Habit Description"
+              value={habitDescription}
+              onChangeText={setHabitDescription}
+            />
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={[styles.button, styles.closeButton]}
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  setHabitName('');
+                  setHabitDescription('');
+                  setModalVisible(false)
+                }}
               >
                 <Text style={styles.cancelButtonText}>Close</Text>
               </TouchableOpacity>
@@ -79,13 +100,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '300',
   },
-  modalOverlay:{
+  modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  modalContent:{
+  modalContent: {
     width: '85%',
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -97,19 +118,19 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  modalTitle:{
+  modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 15,
     color: '#333',
   },
-  buttonContainer:{
+  buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
     marginTop: 10,
   },
-  button:{
+  button: {
     flex: 1,
     height: 45,
     borderRadius: 10,
@@ -117,12 +138,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 5,
   },
-  closeButton:{
+  closeButton: {
     backgroundColor: '#A58BFF',
   },
-  cancelButtonText:{
+  cancelButtonText: {
     color: '#666',
     fontSize: 16,
     fontWeight: '600',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    marginBottom: 15,
+    backgroundColor: '#fff',
   }
 });
