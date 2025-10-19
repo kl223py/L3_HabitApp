@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch} from "react-native";
 import React, { useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Habits() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -28,6 +29,19 @@ export default function Habits() {
     setAllowMissedDays(false);
     setMaxMissedDays('');
     setModalVisible(false);
+  }
+
+  const saveHabit = async (habit) => {
+    try {
+      const existingHabits = await AsyncStorage.getItem('habits');
+      const habits = existingHabits ? JSON.parse(existingHabits) : [];
+      habits.push(habit);
+      await AsyncStorage.setItem('habits', JSON.stringify(habits));
+      console.log('Habit saved successfully');
+    } catch (error) {
+      console.error('Error saving habit:', error);
+      alert('Failed to save habit.');
+    }
   }
 
   return (
