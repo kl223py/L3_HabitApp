@@ -1,10 +1,13 @@
-import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch} from "react-native";
 import React, { useState } from "react";
 
 export default function Habits() {
   const [modalVisible, setModalVisible] = useState(false);
   const [habitName, setHabitName] = useState('');
   const [habitDescription, setHabitDescription] = useState('');
+  const [allowMissedDays, setAllowMissedDays] = useState(false);
+  const [maxMissedDays, setMaxMissedDays] = useState('');
+
 
   return (
     <View style={styles.container}>
@@ -46,6 +49,27 @@ export default function Habits() {
               value={habitDescription}
               onChangeText={setHabitDescription}
             />
+
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Allow Missed Days</Text>
+              <Switch
+                value={allowMissedDays}
+                onValueChange={setAllowMissedDays}
+                trackColor={{ false: '#ddd', true: '#A58BFF'}}
+                thumbColor={allowMissedDays ? '#fff' : '#f4f3f4'}
+              />
+            </View>
+
+            {allowMissedDays && (
+              <TextInput
+                style={styles.input}
+                placeholder="Max Missed Days"
+                value={maxMissedDays}
+                onChangeText={setMaxMissedDays}
+                keyboardType="numeric"
+              />
+            )}
+
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={[styles.button, styles.closeButton]}
@@ -156,5 +180,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 15,
     backgroundColor: '#fff',
+  },
+  switchContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+    paddingVertical: 5,
+  },
+  switchLabel: {
+    fontSize: 16,
+    color: '#333'
   }
 });
