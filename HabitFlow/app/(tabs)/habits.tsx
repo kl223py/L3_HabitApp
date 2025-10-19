@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch} from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Habits() {
@@ -8,6 +8,7 @@ export default function Habits() {
   const [habitDescription, setHabitDescription] = useState('');
   const [allowMissedDays, setAllowMissedDays] = useState(false);
   const [maxMissedDays, setMaxMissedDays] = useState('');
+  const [habits, setHabits] = useState([]);
 
   const handleAddHabit = async () => {
     if (!habitName.trim()) {
@@ -35,7 +36,7 @@ export default function Habits() {
     setModalVisible(false);
   }
 
-  const saveHabit = async (habit) => {
+  const saveHabit = async (habit: any) => {
     try {
       const existingHabits = await AsyncStorage.getItem('habits');
       const habits = existingHabits ? JSON.parse(existingHabits) : [];
@@ -47,6 +48,22 @@ export default function Habits() {
       alert('Failed to save habit.');
     }
   }
+
+  const loadHabits = async () => {
+    try {
+      const storedHabits = await AsyncStorage.getItem('habits');
+      if (storedHabits) {
+        setHabits(JSON.parse(storedHabits));
+        console.log('Habits loaded.', JSON.parse(storedHabits));
+      }
+    } catch (error) {
+      console.error('Error loading habits:', error);
+    }
+  }
+
+  useEffect(() => {
+    loadHabits();
+  }, []);
 
   return (
     <View style={styles.container}>
