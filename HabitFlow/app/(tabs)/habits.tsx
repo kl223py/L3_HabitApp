@@ -9,7 +9,7 @@ export default function Habits() {
   const [allowMissedDays, setAllowMissedDays] = useState(false);
   const [maxMissedDays, setMaxMissedDays] = useState('');
 
-  const handleAddHabit = () => {
+  const handleAddHabit = async () => {
     if (!habitName.trim()) {
       alert('Please enter a habit name.');
       return;
@@ -17,12 +17,16 @@ export default function Habits() {
 
     const habitId = habitName.toLowerCase().replace(/\s+/g, '-');
 
-    const options = allowMissedDays ? {
-      allowMissedDays: true,
-      maxMissedDays: parseInt(maxMissedDays) || 0,
-    } : undefined;
+    const newHabit = {
+      id: habitId,
+      name: habitName,
+      description: habitDescription || habitName,
+      allowMissedDays: allowMissedDays,
+      maxMissedDays: allowMissedDays ? parseInt(maxMissedDays) || 0 : undefined,
+      createdAt: new Date().toISOString(),
+    }
 
-    console.log('Creating habit:', habitId, habitDescription || habitName, options)
+    await saveHabit(newHabit);
 
     setHabitName('');
     setHabitDescription('');
