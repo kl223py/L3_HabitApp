@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch, FlatList } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch, FlatList, Alert } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -74,6 +74,38 @@ export default function Habits() {
     loadHabits();
   }, []);
 
+  const deleteHabit = async (habitId: string) => {
+    try {
+      const existingHabits = await AsyncStorage.getItem('habits');
+      const habits: Habit[] = existingHabits ? JSON.parse(existingHabits) : [];
+      const filteredHabits = habits.filter(habit => habit.id !== habitId);
+      await AsyncStorage.setItem('habits', JSON.stringify(filteredHabits));
+      await loadHabits();
+      console.log('Habit deleted successfully');
+    } catch (error) {
+      console.error('Error deleting habit:', error);
+      alert('Failed to delete habit.');
+    }
+  }
+
+  const confirmDelete = (habitId: string, habitName: string) => {
+    Alert.alert(
+      'Delete Habit',
+      `Are you sure you want to delete the habit "${habitName}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteHabit(habitId),
+        }
+      ]
+    )
+  }
+
   return (
     <View style={styles.container}>
       {habits.length === 0 ? (
@@ -86,13 +118,22 @@ export default function Habits() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.habitCard}>
-              <Text style={styles.habitName}>{item.name}</Text>
-              <Text style={styles.habitDescription}>{item.description}</Text>
-              {item.allowMissedDays && (
-                <Text style={styles.habitDetails}>
-                  Max missed days: {item.maxMissedDays}
-                </Text>
-              )}
+                <View style={styles.habitInfo}>
+                  <Text style={styles.habitName}>{item.name}</Text>
+                  <Text style={styles.habitDescription}>{item.description}</Text>
+                  {item.allowMissedDays && (
+                    <Text style={styles.habitDetails}>
+                      Max missed days: {item.maxMissedDays}
+                    </Text>
+                  )}
+                </View>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => confirmDelete(item.id, item.name)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.deleteButtonText}>×</Text>
+                </TouchableOpacity>
             </View>
           )}
           contentContainerStyle={styles.listContainer}
@@ -209,6 +250,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: 300,
+  },
+  habitInfo: {
+    flex: 1,
+    marginRight: 10,
   },
   habitName: {
     fontSize: 18,
@@ -225,6 +274,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
     fontStyle: 'italic',
+  },
+  deleteButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#FF6B6B',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteButtonText : {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    lineHeight: 24,
   },
   addButton: {
     position: 'absolute',
@@ -323,5 +386,5 @@ const styles = StyleSheet.create({
   switchLabel: {
     fontSize: 16,
     color: '#333'
-  }
+  },
 });
