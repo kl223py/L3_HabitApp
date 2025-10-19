@@ -1,6 +1,14 @@
-import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch, FlatList } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface Habit {
+  id: string;
+  name: string;
+  description: string;
+  allowMissedDays: boolean;
+  maxMissedDays?: number;
+}
 
 export default function Habits() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -8,7 +16,7 @@ export default function Habits() {
   const [habitDescription, setHabitDescription] = useState('');
   const [allowMissedDays, setAllowMissedDays] = useState(false);
   const [maxMissedDays, setMaxMissedDays] = useState('');
-  const [habits, setHabits] = useState([]);
+  const [habits, setHabits] = useState<Habit[]>([]);
 
   const handleAddHabit = async () => {
     if (!habitName.trim()) {
@@ -28,6 +36,7 @@ export default function Habits() {
     }
 
     await saveHabit(newHabit);
+    await loadHabits();
 
     setHabitName('');
     setHabitDescription('');
@@ -67,9 +76,28 @@ export default function Habits() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.instructionsText}>
-        To add a new habit, press the &quot;+&quot; button below.
-      </Text>
+      {habits.length === 0 ? (
+        <Text style={styles.instructionsText}>
+          To add a new habit, press the &quot;+&quot; button below.
+        </Text>
+      ) : (
+        <FlatList
+          data={habits}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.habitCard}>
+              <Text style={styles.habitName}>{item.name}</Text>
+              <Text style={styles.habitDescription}>{item.description}</Text>
+              {item.allowMissedDays && (
+                <Text style={styles.habitDetails}>
+                  Max missed days: {item.maxMissedDays}
+                </Text>
+              )}
+            </View>
+          )}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
 
 
       <TouchableOpacity
@@ -111,7 +139,7 @@ export default function Habits() {
               <Switch
                 value={allowMissedDays}
                 onValueChange={setAllowMissedDays}
-                trackColor={{ false: '#ddd', true: '#A58BFF'}}
+                trackColor={{ false: '#ddd', true: '#A58BFF' }}
                 thumbColor={allowMissedDays ? '#fff' : '#f4f3f4'}
               />
             </View>
@@ -139,10 +167,12 @@ export default function Habits() {
                 onPress={() => {
                   setHabitName('');
                   setHabitDescription('');
-                  setModalVisible(false)
+                  setAllowMissedDays(false);
+                  setMaxMissedDays('');
+                  setModalVisible(false);
                 }}
               >
-                <Text style={styles.cancelButtonText}>Close</Text>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -165,6 +195,36 @@ const styles = StyleSheet.create({
     color: '#999',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  listContainer: {
+    paddingBottom: 100,
+  },
+  habitCard: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  habitName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  habitDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
+  },
+  habitDetails: {
+    fontSize: 12,
+    color: '#999',
+    fontStyle: 'italic',
   },
   addButton: {
     position: 'absolute',
