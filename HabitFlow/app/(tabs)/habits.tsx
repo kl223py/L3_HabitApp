@@ -1,9 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch, FlatList, Alert } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HabitManager from 'habit_tracker_module';
-
-const habitManager = HabitManager;
+import HabitManager from 'habit_tracker_module'; 
 
 interface Habit {
   id: string;
@@ -28,7 +26,7 @@ export default function Habits() {
         const habits: Habit[] = JSON.parse(storedHabits);
         habits.forEach(habit => {
           try {
-            habitManager.createHabit(
+            HabitManager.createHabit(
               habit.id,
               habit.description,
               habit.allowMissedDays ? {
@@ -39,7 +37,7 @@ export default function Habits() {
           } catch (error) {
             console.error(`Error initializing habit ${habit.id}:`, error);
           }
-        }) 
+        })
       }
     }
     initializeHabitManager();
@@ -303,18 +301,17 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   deleteButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#FF6B6B',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  deleteButtonText : {
+  deleteButtonText: {
     color: '#fff',
     fontSize: 24,
-    fontWeight: 'bold',
-    lineHeight: 24,
+    fontWeight: 'bold', 
   },
   addButton: {
     position: 'absolute',
