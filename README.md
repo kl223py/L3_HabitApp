@@ -2,6 +2,12 @@
 
 
 ## Om Projektet
+HabitFlow är en enkel och intuitiv mobilapp som hjälper användare att bygga och bibehålla goda vanor. Appen fokuserar på att spåra "streaks" - hur många dagar i rad du följt en vana - och ger dig möjligheten att enkelt markera dina dagliga aktiviteter.
+
+Projektet använder en egen habit-tracker modul utvecklad i Laboration 2, vilket visar hur modulär programmering kan återanvändas i praktiska applikationer.
+
+### Vision
+Att skapa ett enkelt verktyg som motiverar människor att hålla sig till sina positiva vanor genom tydlig visualisering av framsteg och flexibel konfiguration av habits.
 
 ### Vision
 
