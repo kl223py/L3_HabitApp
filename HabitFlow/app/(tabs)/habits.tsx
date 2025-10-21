@@ -46,6 +46,19 @@ export default function Habits() {
     }
   }
 
+    function addStreakDataToHabit(habit: Habit) {
+    try {
+      return {
+        ...habit,
+        currentStreak: habitManager.getCurrentStreak(habit.id),
+        isStreakBroken: habitManager.isStreakBroken(habit.id),
+      }
+    } catch (error) {
+      console.error(`Error loading habit ${habit.id}:`, error);
+      return habit;
+    }
+  }
+
   useEffect(() => {
     const initializeHabitManager = async () => {
       const storedHabits = await loadStoredHabits();
