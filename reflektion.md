@@ -21,3 +21,21 @@ Kapitel 3 som handlar om att funktioner ska göra en sak och vara små påverkad
 Det finns nästan inga kommentarer i min kod, eftersom att jag har försökt att följa boken budskap "Don't comment bad code, rewrite it". Så istället för kommentarer har jag försökt skriva om min kod enligt kapitel 2 och 3. Så jag har skrivit om funktionsnamn och gjort de mindre så att det inte ska behövas kommentarer.
 
 ---
+
+## Kapitel 5: Formatering
+
+Jag har försökt följa "The Newspaper Metaphor" genom att organisera koden med det viktigaste först och sedan detaljer. State-deklarationer kommer högst upp i klassen, sedan lifecycle-metoder och till sist render-metoden. Jag har också tänkt på "Vertical Distance" genom att placera funktioner som anropar varandra nära varandra, så att det blir lättare att följa koden.
+
+---
+
+## Kapitel 6: Objekt och Datastrukturer
+
+Jag har använt TypeScript interfaces för att skapa tydliga kontrakt för min data, vilket följer "Data Abstraction". `Habit`-interfacet visar vilken data som finns men döljer hur streak-beräkningar fungerar internt. Genom att använda klasser istället för funktionella komponenter har jag kunnat kapsla in data och beteende tillsammans enligt bokens principer om objektorientering.
+
+---
+
+## Kapitel 7: Felhantering
+
+Felhantering är integrerad i min kod genom try-catch block och en centraliserad `getErrorMessage()` funktion som följer "Use Exceptions Rather Than Return Codes". Jag undviker att returnera null genom att alltid returnera tomma arrayer vid fel (`return []`), vilket följer "Don't Return Null" och gör att jag slipper null-checks överallt i koden.
+
+---
