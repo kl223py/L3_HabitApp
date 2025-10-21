@@ -1,9 +1,8 @@
 import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch, FlatList, Alert } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HabitManager from 'habit_tracker_module';
+import habitManager from "../../utils/habitManagerWrapper";
 
-const habitManager = new HabitManager();
 
 interface Habit {
   id: string;
@@ -251,7 +250,6 @@ export default function Habits() {
         />
       )}
 
-
       <TouchableOpacity
         style={styles.addButton}
         activeOpacity={0.5}
@@ -266,7 +264,6 @@ export default function Habits() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-
 
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
