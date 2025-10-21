@@ -79,32 +79,16 @@ export default function Habits() {
   }
 
   const handleAddHabit = async () => {
-    if (!habitName.trim()) {
-      alert('Please enter a habit name.');
+    if (!isValidHabitName(habitName)) {
+      alert('Please enter a valid habit name.');
       return;
     }
 
-    const habitId = habitName.toLowerCase().replace(/\s+/g, '-');
-
     try {
-      habitManager.createHabit(
-        habitId,
-        habitDescription || habitName,
-        allowMissedDays ? {
-          allowMissedDays: allowMissedDays,
-          maxMissedDays: parseInt(maxMissedDays) || 0,
-        } : undefined
-      )
-      const newHabit = {
-        id: habitId,
-        name: habitName,
-        description: habitDescription || habitName,
-        allowMissedDays: allowMissedDays,
-        maxMissedDays: allowMissedDays ? parseInt(maxMissedDays) || 0 : undefined,
-        createdAt: new Date().toISOString(),
-      }
-
+      const newHabit = createHabitFromInput();
+      registerHabitInManager(newHabit);
       await saveHabit(newHabit);
+
       await loadHabitsfromStorage();
 
       setHabitName('');
@@ -114,6 +98,25 @@ export default function Habits() {
       setIsModalVisible(false);
     } catch (error: any) {
       alert(error.message || 'Failed to add habit.');
+    }
+  }
+
+  function isValidHabitName(name: string): boolean {
+    return name.trim().length > 0;
+  }
+
+  function generateHabitId(name: string): string {
+    return name.toLowerCase().replace(/\s+/g, '-');
+  }
+
+  function createHabitFromInput(): Habit {
+    return {
+      id: generateHabitId(habitName),
+      name: habitName,
+      description: habitDescription || habitName,
+      allowMissedDays: allowMissedDays,
+      maxMissedDays: allowMissedDays ? parseInt(maxMissedDays) || 0 : undefined,
+      createdAt: new Date().toISOString(),
     }
   }
 
