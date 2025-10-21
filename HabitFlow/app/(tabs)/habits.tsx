@@ -193,7 +193,7 @@ export default function Habits() {
           `Streak: ${currentStreak} days\n` +
           `Status: ${isBroken ? 'Streak Broken' : 'Active'}\n` +
           `Missed Days Allowed: ${habit.allowMissedDays ? `Yes (${habit.maxMissedDays})` : 'No'}`,
-          [{ text: 'OK'}]
+          [{ text: 'OK' }]
         )
       }
     } catch (error: any) {
@@ -212,24 +212,40 @@ export default function Habits() {
           data={habits}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={styles.habitCard}>
+            <TouchableOpacity
+              style={styles.habitCard}
+              onLongPress={() => showHabitDetails(item.id)}
+            >
+
               <View style={styles.habitInfo}>
                 <Text style={styles.habitName}>{item.name}</Text>
                 <Text style={styles.habitDescription}>{item.description}</Text>
+                <Text style={styles.habitDetails}>
+                  Streak: {item.currentStreak || 0} Days
+                  {item.isStreakBroken && '(Broken)'}
+                </Text>
                 {item.allowMissedDays && (
                   <Text style={styles.habitDetails}>
-                    Max missed days: {item.maxMissedDays}
+                    Max missed days: {item.maxMissedDays} days
                   </Text>
                 )}
               </View>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => confirmDelete(item.id, item.name)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.deleteButtonText}>×</Text>
-              </TouchableOpacity>
-            </View>
+              <View style={styles.buttonGroup}>
+                <TouchableOpacity
+                  style={styles.completeButton}
+                  onPress={() => markHabitComplete(item.id)}
+                >
+                  <Text style={styles.completeButtonText}>✓</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => confirmDelete(item.id, item.name)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.deleteButtonText}>×</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
           )}
           contentContainerStyle={styles.listContainer}
         />
@@ -369,6 +385,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
     fontStyle: 'italic',
+  },
+  buttonGroup: {
+    flexDirection: 'column',
+    gap: 8,
+  },
+  completeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 18,
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  completeButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   deleteButton: {
     width: 40,
