@@ -24,9 +24,19 @@ export default function Habits() {
   const [maxMissedDays, setMaxMissedDays] = useState('');
   const [habits, setHabits] = useState<Habit[]>([]);
 
+  async function loadStoredHabits() {
+    try {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error('Error loading habits:', error);
+      return [];
+    }
+  }
+
   useEffect(() => {
     const initializeHabitManager = async () => {
-      const storedHabits = await AsyncStorage.getItem('habits');
+      const storedHabits = await loadStoredHabits();
       if (storedHabits) {
         const habits: Habit[] = JSON.parse(storedHabits);
         habits.forEach(habit => {
@@ -48,38 +58,11 @@ export default function Habits() {
     initializeHabitManager();
   }, [])
 
-  const loadHabits = async () => {
-    try {
-      const storedHabits = await AsyncStorage.getItem('habits');
-      if (storedHabits) {
-        const parsedHabits: Habit[] = JSON.parse(storedHabits);
-
-        const habitsWithStreaks = parsedHabits.map(habit => {
-          try {
-            const currentStreak = habitManager.getCurrentStreak(habit.id);
-            const isStreakBroken = habitManager.isStreakBroken(habit.id);
-            return {
-              ...habit,
-              currentStreak,
-              isStreakBroken,
-            };
-          } catch (error) {
-            console.error(`Error loading habit ${habit.id}:`, error);
-            return habit;
-          }
-        })
-
-        setHabits(habitsWithStreaks);
-        console.log('Habits loaded successfully.');
-      }
-    } catch (error) {
-      console.error('Error loading habits:', error);
-    }
+  async function loadHabitsfromStorage() {
+    const storedHabits = await loadStoredHabits();
+    const enrichedHabits = storedHabits.map(addStreakDataToHabit);
+    setHabits(enrichedHabits);
   }
-
-  useEffect(() => {
-    loadHabits();
-  }, []);
 
   const handleAddHabit = async () => {
     if (!habitName.trim()) {
@@ -108,7 +91,7 @@ export default function Habits() {
       }
 
       await saveHabit(newHabit);
-      await loadHabits();
+      await loadHabitsfromStorage();
 
       setHabitName('');
       setHabitDescription('');
@@ -138,7 +121,7 @@ export default function Habits() {
       const result = habitManager.addCompletion(habitId, new Date());
       if (result) {
         alert('Habit completed today!');
-        await loadHabits();
+        await loadHabitsfromStorage();
       } else {
         alert('Already completed today!')
       }
@@ -156,7 +139,7 @@ export default function Habits() {
       const filteredHabits = habits.filter(habit => habit.id !== habitId);
       await AsyncStorage.setItem('habits', JSON.stringify(filteredHabits));
 
-      await loadHabits();
+      await loadHabitsfromStorage();
       console.log('Habit deleted successfully');
     } catch (error) {
       console.error('Error deleting habit:', error);
