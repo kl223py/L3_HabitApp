@@ -1,6 +1,3 @@
-// habit_tracker_module.d.ts
-// Placera denna fil i HabitFlow/types/ mappen
-
 declare module 'habit_tracker_module' {
   export interface HabitOptions {
     allowMissedDays?: boolean;
