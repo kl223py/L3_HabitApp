@@ -11,6 +11,8 @@ interface Habit {
   description: string;
   allowMissedDays: boolean;
   maxMissedDays?: number;
+  currentStreak?: number;
+  isStreakBroken?: boolean;
 }
 
 export default function Habits() {
@@ -45,6 +47,39 @@ export default function Habits() {
     initializeHabitManager();
   }, [])
 
+  const loadHabits = async () => {
+    try {
+      const storedHabits = await AsyncStorage.getItem('habits');
+      if (storedHabits) {
+        const parsedHabits: Habit[] = JSON.parse(storedHabits);
+
+        const habitsWithStreaks = parsedHabits.map(habit => {
+          try {
+            const currentStreak = habitManager.getCurrentStreak(habit.id);
+            const isStreakBroken = habitManager.isStreakBroken(habit.id);
+            return {
+              ...habit,
+              currentStreak,
+              isStreakBroken,
+            };
+          } catch (error) {
+            console.error(`Error loading habit ${habit.id}:`, error);
+            return habit;
+          }
+        })
+
+        setHabits(habitsWithStreaks);
+        console.log('Habits loaded successfully.');
+      }
+    } catch (error) {
+      console.error('Error loading habits:', error);
+    }
+  }
+
+  useEffect(() => {
+    loadHabits();
+  }, []);
+
   const handleAddHabit = async () => {
     if (!habitName.trim()) {
       alert('Please enter a habit name.');
@@ -53,23 +88,35 @@ export default function Habits() {
 
     const habitId = habitName.toLowerCase().replace(/\s+/g, '-');
 
-    const newHabit = {
-      id: habitId,
-      name: habitName,
-      description: habitDescription || habitName,
-      allowMissedDays: allowMissedDays,
-      maxMissedDays: allowMissedDays ? parseInt(maxMissedDays) || 0 : undefined,
-      createdAt: new Date().toISOString(),
+    try {
+      habitManager.createHabit(
+        habitId,
+        habitDescription || habitName,
+        allowMissedDays ? {
+          allowMissedDays: allowMissedDays,
+          maxMissedDays: parseInt(maxMissedDays) || 0,
+        } : undefined
+      )
+      const newHabit = {
+        id: habitId,
+        name: habitName,
+        description: habitDescription || habitName,
+        allowMissedDays: allowMissedDays,
+        maxMissedDays: allowMissedDays ? parseInt(maxMissedDays) || 0 : undefined,
+        createdAt: new Date().toISOString(),
+      }
+
+      await saveHabit(newHabit);
+      await loadHabits();
+
+      setHabitName('');
+      setHabitDescription('');
+      setAllowMissedDays(false);
+      setMaxMissedDays('');
+      setModalVisible(false);
+    } catch (error: any) {
+      alert(error.message || 'Failed to add habit.');
     }
-
-    await saveHabit(newHabit);
-    await loadHabits();
-
-    setHabitName('');
-    setHabitDescription('');
-    setAllowMissedDays(false);
-    setMaxMissedDays('');
-    setModalVisible(false);
   }
 
   const saveHabit = async (habit: any) => {
@@ -85,21 +132,6 @@ export default function Habits() {
     }
   }
 
-  const loadHabits = async () => {
-    try {
-      const storedHabits = await AsyncStorage.getItem('habits');
-      if (storedHabits) {
-        setHabits(JSON.parse(storedHabits));
-        console.log('Habits loaded.', JSON.parse(storedHabits));
-      }
-    } catch (error) {
-      console.error('Error loading habits:', error);
-    }
-  }
-
-  useEffect(() => {
-    loadHabits();
-  }, []);
 
   const deleteHabit = async (habitId: string) => {
     try {
@@ -145,22 +177,22 @@ export default function Habits() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.habitCard}>
-                <View style={styles.habitInfo}>
-                  <Text style={styles.habitName}>{item.name}</Text>
-                  <Text style={styles.habitDescription}>{item.description}</Text>
-                  {item.allowMissedDays && (
-                    <Text style={styles.habitDetails}>
-                      Max missed days: {item.maxMissedDays}
-                    </Text>
-                  )}
-                </View>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => confirmDelete(item.id, item.name)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.deleteButtonText}>×</Text>
-                </TouchableOpacity>
+              <View style={styles.habitInfo}>
+                <Text style={styles.habitName}>{item.name}</Text>
+                <Text style={styles.habitDescription}>{item.description}</Text>
+                {item.allowMissedDays && (
+                  <Text style={styles.habitDetails}>
+                    Max missed days: {item.maxMissedDays}
+                  </Text>
+                )}
+              </View>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => confirmDelete(item.id, item.name)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.deleteButtonText}>×</Text>
+              </TouchableOpacity>
             </View>
           )}
           contentContainerStyle={styles.listContainer}
@@ -313,7 +345,7 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#fff',
     fontSize: 24,
-    fontWeight: 'bold', 
+    fontWeight: 'bold',
   },
   addButton: {
     position: 'absolute',
