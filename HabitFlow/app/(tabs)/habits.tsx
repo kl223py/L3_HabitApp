@@ -154,7 +154,7 @@ export default function Habits() {
       const habits: Habit[] = existingHabits ? JSON.parse(existingHabits) : [];
       const filteredHabits = habits.filter(habit => habit.id !== habitId);
       await AsyncStorage.setItem('habits', JSON.stringify(filteredHabits));
-      
+
       await loadHabits();
       console.log('Habit deleted successfully');
     } catch (error) {
@@ -179,6 +179,26 @@ export default function Habits() {
         }
       ]
     )
+  }
+
+  const showHabitDetails = (habitId: string) => {
+    try {
+      const habit = habitManager.getHabit(habitId);
+      if (habit) {
+        const currentStreak = habitManager.getCurrentStreak(habitId);
+        const isBroken = habitManager.isStreakBroken(habitId);
+
+        Alert.alert(
+          habit.name,
+          `Streak: ${currentStreak} days\n` +
+          `Status: ${isBroken ? 'Streak Broken' : 'Active'}\n` +
+          `Missed Days Allowed: ${habit.allowMissedDays ? `Yes (${habit.maxMissedDays})` : 'No'}`,
+          [{ text: 'OK'}]
+        )
+      }
+    } catch (error: any) {
+      alert(error.message);
+    }
   }
 
   return (
