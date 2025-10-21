@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import habitManager from "../../utils/habitManagerWrapper";
 
-
 interface Habit {
   id: string;
   name: string;
@@ -12,10 +11,13 @@ interface Habit {
   maxMissedDays?: number;
   currentStreak?: number;
   isStreakBroken?: boolean;
+  createdAt?: string;
 }
 
+const STORAGE_KEY = 'habits';
+
 export default function Habits() {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [habitName, setHabitName] = useState('');
   const [habitDescription, setHabitDescription] = useState('');
   const [allowMissedDays, setAllowMissedDays] = useState(false);
@@ -112,7 +114,7 @@ export default function Habits() {
       setHabitDescription('');
       setAllowMissedDays(false);
       setMaxMissedDays('');
-      setModalVisible(false);
+      setIsModalVisible(false);
     } catch (error: any) {
       alert(error.message || 'Failed to add habit.');
     }
@@ -253,7 +255,7 @@ export default function Habits() {
       <TouchableOpacity
         style={styles.addButton}
         activeOpacity={0.5}
-        onPress={() => setModalVisible(true)}
+        onPress={() => setIsModalVisible(true)}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
@@ -261,8 +263,8 @@ export default function Habits() {
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}
       >
 
         <View style={styles.modalOverlay}>
@@ -318,7 +320,7 @@ export default function Habits() {
                   setHabitDescription('');
                   setAllowMissedDays(false);
                   setMaxMissedDays('');
-                  setModalVisible(false);
+                  setIsModalVisible(false);
                 }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
