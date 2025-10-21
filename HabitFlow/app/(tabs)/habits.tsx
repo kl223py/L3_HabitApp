@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch, FlatList, Alert } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import habitManager from "../../utils/habitManagerWrapper";
 
@@ -24,7 +24,7 @@ export default function Habits() {
   const [maxMissedDays, setMaxMissedDays] = useState('');
   const [habits, setHabits] = useState<Habit[]>([]);
 
-  async function loadStoredHabits() {
+  async function loadStoredHabits(): Promise<Habit[]> {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       return stored ? JSON.parse(stored) : [];
@@ -42,57 +42,53 @@ export default function Habits() {
 
       habitManager.createHabit(habit.id, habit.description, options);
     } catch (error) {
-      console.error(`Error registering habit ${habit.id}:`, error);
+      console.error(`Error initializing habit ${habit.id}:`, error);
     }
   }
 
-  function addStreakDataToHabit(habit: Habit) {
+  function addStreakDataToHabit(habit: Habit): Habit {
     try {
       return {
         ...habit,
         currentStreak: habitManager.getCurrentStreak(habit.id),
-        isStreakBroken: habitManager.isStreakBroken(habit.id),
-      }
+        isStreakBroken: habitManager.isStreakBroken(habit.id)
+      };
     } catch (error) {
       console.error(`Error loading habit ${habit.id}:`, error);
       return habit;
     }
   }
 
-  useEffect(() => {
-    const initializeHabitManager = async () => {
-      const storedHabits = await loadStoredHabits();
-      if (storedHabits) {
-        const habits: Habit[] = JSON.parse(storedHabits);
-        habits.forEach(habit => {
-          storedHabits.forEach(registerHabitInManager)
-        })
-      }
-    }
-    initializeHabitManager();
-  }, [])
+  const initializeHabitManager = useCallback(async () => {
+    const storedHabits = await loadStoredHabits();
+    storedHabits.forEach(registerHabitInManager);
+  }, []);
 
-  async function loadHabitsfromStorage() {
+  const loadHabitsFromStorage = useCallback(async () => {
     const storedHabits = await loadStoredHabits();
     const enrichedHabits = storedHabits.map(addStreakDataToHabit);
     setHabits(enrichedHabits);
-  }
-  const handleAddHabit = async () => {
+  }, []);
+
+  useEffect(() => {
+    initializeHabitManager();
+    loadHabitsFromStorage();
+  }, [initializeHabitManager, loadHabitsFromStorage]);
+
+  async function handleAddHabit() {
     if (!isValidHabitName(habitName)) {
-      alert('Please enter a valid habit name.');
+      alert('Please enter a habit name.');
       return;
     }
 
     try {
-      const newHabit = createHabitFromInput();
+      const newHabit = createHabitFromInputs();
       registerHabitInManager(newHabit);
       await saveHabitToStorage(newHabit);
-
-      await loadHabitsfromStorage();
-
+      await loadHabitsFromStorage();
       resetFormAndCloseModal();
-    } catch (error: any) {
-      alert(getErrorMessage(error) || 'Failed to add habit.');
+    } catch (error) {
+      alert(getErrorMessage(error));
     }
   }
 
@@ -100,11 +96,7 @@ export default function Habits() {
     return name.trim().length > 0;
   }
 
-  function generateHabitId(name: string): string {
-    return name.toLowerCase().replace(/\s+/g, '-');
-  }
-
-  function createHabitFromInput(): Habit {
+  function createHabitFromInputs(): Habit {
     return {
       id: generateHabitId(habitName),
       name: habitName,
@@ -112,7 +104,11 @@ export default function Habits() {
       allowMissedDays: allowMissedDays,
       maxMissedDays: allowMissedDays ? parseInt(maxMissedDays) || 0 : undefined,
       createdAt: new Date().toISOString(),
-    }
+    };
+  }
+
+  function generateHabitId(name: string): string {
+    return name.toLowerCase().replace(/\s+/g, '-');
   }
 
   async function saveHabitToStorage(habit: Habit) {
@@ -129,22 +125,22 @@ export default function Habits() {
     setIsModalVisible(false);
   }
 
-  const markHabitComplete = async (habitId: string) => {
+  async function markHabitComplete(habitId: string) {
     try {
       const wasCompleted = habitManager.addCompletion(habitId, new Date());
       const message = wasCompleted ? 'Habit completed today!' : 'Already completed today!';
       alert(message);
-      await loadHabitsfromStorage();
-    } catch (error: any) {
-      alert(getErrorMessage(error) || 'Failed to mark as complete.');
+      await loadHabitsFromStorage();
+    } catch (error) {
+      alert(getErrorMessage(error));
     }
   }
 
-  const deleteHabit = async (habitId: string) => {
+  async function deleteHabit(habitId: string) {
     try {
       habitManager.deleteHabit(habitId);
       await removeHabitFromStorage(habitId);
-      await loadHabitsfromStorage();
+      await loadHabitsFromStorage();
     } catch (error) {
       console.error('Error deleting habit:', error);
       alert('Failed to delete habit.');
@@ -153,37 +149,30 @@ export default function Habits() {
 
   async function removeHabitFromStorage(habitId: string) {
     const existingHabits = await loadStoredHabits();
-    const filteredHabits = existingHabits.filter((habit: Habit) => habit.id !== habitId);
+    const filteredHabits = existingHabits.filter(habit => habit.id !== habitId);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filteredHabits));
   }
 
-  const confirmDelete = (habitId: string, habitName: string) => {
+  function confirmDelete(habitId: string, habitName: string) {
     Alert.alert(
       'Delete Habit',
       `Are you sure you want to delete the habit "${habitName}"?`,
       [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => deleteHabit(habitId),
-        }
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => deleteHabit(habitId) }
       ]
-    )
+    );
   }
 
-  const showHabitDetails = (habitId: string) => {
+  function showHabitDetails(habitId: string) {
     try {
       const habit = habitManager.getHabit(habitId);
       if (!habit) return;
 
       const details = formatHabitDetailsMessage(habit, habitId);
       Alert.alert(habit.name, details, [{ text: 'OK' }]);
-    } catch (error: any) {
-      alert(getErrorMessage(error) || 'Failed to load habit details.');
+    } catch (error) {
+      alert(getErrorMessage(error));
     }
   }
 
@@ -191,8 +180,8 @@ export default function Habits() {
     const currentStreak = habitManager.getCurrentStreak(habitId);
     const isBroken = habitManager.isStreakBroken(habitId);
     const status = isBroken ? 'Streak Broken' : 'Active';
-    const missedDaysInfo = habit.allowMissedDays
-      ? `Yes (${habit.maxMissedDays})`
+    const missedDaysInfo = habit.allowMissedDays 
+      ? `Yes (${habit.maxMissedDays})` 
       : 'No';
 
     return `Streak: ${currentStreak} days\nStatus: ${status}\nMissed Days Allowed: ${missedDaysInfo}`;
@@ -209,13 +198,12 @@ export default function Habits() {
         style={styles.habitCard}
         onLongPress={() => showHabitDetails(item.id)}
       >
-
         <View style={styles.habitInfo}>
           <Text style={styles.habitName}>{item.name}</Text>
           <Text style={styles.habitDescription}>{item.description}</Text>
           <Text style={styles.habitDetails}>
             Streak: {item.currentStreak || 0} Days
-            {item.isStreakBroken && '(Broken)'}
+            {item.isStreakBroken && ' (Broken)'}
           </Text>
           {item.allowMissedDays && (
             <Text style={styles.habitDetails}>
@@ -239,7 +227,7 @@ export default function Habits() {
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
-    )
+    );
   }
 
   function renderEmptyState() {
@@ -247,7 +235,7 @@ export default function Habits() {
       <Text style={styles.instructionsText}>
         To add a new habit, press the &quot;+&quot; button below.
       </Text>
-    )
+    );
   }
 
   function renderHabitList() {
@@ -259,13 +247,13 @@ export default function Habits() {
       <FlatList
         data={habits}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (renderHabitCard({ item }))}
+        renderItem={renderHabitCard}
         contentContainerStyle={styles.listContainer}
       />
-    )
+    );
   }
 
-return (
+  return (
     <View style={styles.container}>
       {renderHabitList()}
 
@@ -283,7 +271,6 @@ return (
         visible={isModalVisible}
         onRequestClose={() => setIsModalVisible(false)}
       >
-
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add new Habit</Text>
@@ -327,12 +314,11 @@ return (
                 style={[styles.button, styles.saveButton]}
                 onPress={handleAddHabit}
               >
-
-                <Text style={styles.saveButtonText}> Save</Text>
+                <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.closeButton]}
-                onPress={() => { resetFormAndCloseModal(); }}
+                onPress={resetFormAndCloseModal}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
@@ -340,7 +326,7 @@ return (
           </View>
         </View>
       </Modal>
-    </View >
+    </View>
   );
 }
 
