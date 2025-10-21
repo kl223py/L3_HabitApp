@@ -233,7 +233,7 @@ export default function Habits() {
   function renderEmptyState() {
     return (
       <Text style={styles.instructionsText}>
-        To add a new habit, press the &quot;+&quot; button below.
+        To add a new habit, press the &quot;+&quot;  button below.
       </Text>
     );
   }
