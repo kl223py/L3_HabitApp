@@ -132,13 +132,10 @@ export default function Habits() {
 
   const markHabitComplete = async (habitId: string) => {
     try {
-      const result = habitManager.addCompletion(habitId, new Date());
-      if (result) {
-        alert('Habit completed today!');
-        await loadHabitsfromStorage();
-      } else {
-        alert('Already completed today!')
-      }
+      const wasCompleted = habitManager.addCompletion(habitId, new Date());
+      const message = wasCompleted ? 'Habit completed today!' : 'Already completed today!';
+      alert(message);
+      await loadHabitsfromStorage();
     } catch (error: any) {
       alert(error.message || 'Failed to mark as complete.');
     }
