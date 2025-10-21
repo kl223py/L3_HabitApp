@@ -91,11 +91,7 @@ export default function Habits() {
 
       await loadHabitsfromStorage();
 
-      setHabitName('');
-      setHabitDescription('');
-      setAllowMissedDays(false);
-      setMaxMissedDays('');
-      setIsModalVisible(false);
+      resetFormAndCloseModal();
     } catch (error: any) {
       alert(error.message || 'Failed to add habit.');
     }
@@ -124,6 +120,14 @@ export default function Habits() {
     const existingHabits = await loadStoredHabits();
     existingHabits.push(habit);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(existingHabits));
+  }
+
+  function resetFormAndCloseModal() {
+    setHabitName('');
+    setHabitDescription('');
+    setAllowMissedDays(false);
+    setMaxMissedDays('');
+    setIsModalVisible(false);
   }
 
   const markHabitComplete = async (habitId: string) => {
@@ -308,13 +312,7 @@ export default function Habits() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.closeButton]}
-                onPress={() => {
-                  setHabitName('');
-                  setHabitDescription('');
-                  setAllowMissedDays(false);
-                  setMaxMissedDays('');
-                  setIsModalVisible(false);
-                }}
+                onPress={() => { resetFormAndCloseModal(); }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
