@@ -87,7 +87,7 @@ export default function Habits() {
     try {
       const newHabit = createHabitFromInput();
       registerHabitInManager(newHabit);
-      await saveHabit(newHabit);
+      await saveHabitToStorage(newHabit);
 
       await loadHabitsfromStorage();
 
@@ -120,17 +120,10 @@ export default function Habits() {
     }
   }
 
-  const saveHabit = async (habit: any) => {
-    try {
-      const existingHabits = await AsyncStorage.getItem('habits');
-      const habits = existingHabits ? JSON.parse(existingHabits) : [];
-      habits.push(habit);
-      await AsyncStorage.setItem('habits', JSON.stringify(habits));
-      console.log('Habit saved successfully');
-    } catch (error) {
-      console.error('Error saving habit:', error);
-      alert('Failed to save habit.');
-    }
+  async function saveHabitToStorage(habit: Habit) {
+    const existingHabits = await loadStoredHabits();
+    existingHabits.push(habit);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(existingHabits));
   }
 
   const markHabitComplete = async (habitId: string) => {
