@@ -46,7 +46,7 @@ export default function Habits() {
     }
   }
 
-    function addStreakDataToHabit(habit: Habit) {
+  function addStreakDataToHabit(habit: Habit) {
     try {
       return {
         ...habit,
@@ -77,7 +77,7 @@ export default function Habits() {
     const enrichedHabits = storedHabits.map(addStreakDataToHabit);
     setHabits(enrichedHabits);
   }
-   const handleAddHabit = async () => {
+  const handleAddHabit = async () => {
     if (!isValidHabitName(habitName)) {
       alert('Please enter a valid habit name.');
       return;
@@ -178,21 +178,24 @@ export default function Habits() {
   const showHabitDetails = (habitId: string) => {
     try {
       const habit = habitManager.getHabit(habitId);
-      if (habit) {
-        const currentStreak = habitManager.getCurrentStreak(habitId);
-        const isBroken = habitManager.isStreakBroken(habitId);
+      if (!habit) return;
 
-        Alert.alert(
-          habit.name,
-          `Streak: ${currentStreak} days\n` +
-          `Status: ${isBroken ? 'Streak Broken' : 'Active'}\n` +
-          `Missed Days Allowed: ${habit.allowMissedDays ? `Yes (${habit.maxMissedDays})` : 'No'}`,
-          [{ text: 'OK' }]
-        )
-      }
+      const details = formatHabitDetailsMessage(habit, habitId);
+      Alert.alert(habit.name, details, [{ text: 'OK'}]);
     } catch (error: any) {
-      alert(error.message);
+      alert(getErrorMessage(error) || 'Failed to load habit details.');
     }
+  }
+
+  function formatHabitDetailsMessage(habit: any, habitId: string): string {
+    const currentStreak = habitManager.getCurrentStreak(habitId);
+    const isBroken = habitManager.isStreakBroken(habitId);
+    const status = isBroken ? 'Streak Broken' : 'Active';
+    const missedDaysInfo = habit.allowMissedDays
+      ? `Yes (${habit.maxMissedDays})`
+      : 'No';
+
+    return `Streak: ${currentStreak} days\nStatus: ${status}\nMissed Days Allowed: ${missedDaysInfo}`;
   }
 
   function getErrorMessage(error: unknown): string {
