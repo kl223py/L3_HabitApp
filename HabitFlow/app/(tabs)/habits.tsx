@@ -132,13 +132,29 @@ export default function Habits() {
     }
   }
 
+  const markHabitComplete = async (habitId: string) => {
+    try {
+      const result = habitManager.addCompletion(habitId, new Date());
+      if (result) {
+        alert('Habit completed today!');
+        await loadHabits();
+      } else {
+        alert('Already completed today!')
+      }
+    } catch (error: any) {
+      alert(error.message || 'Failed to mark as complete.');
+    }
+  }
 
   const deleteHabit = async (habitId: string) => {
     try {
+      habitManager.deleteHabit(habitId);
+
       const existingHabits = await AsyncStorage.getItem('habits');
       const habits: Habit[] = existingHabits ? JSON.parse(existingHabits) : [];
       const filteredHabits = habits.filter(habit => habit.id !== habitId);
       await AsyncStorage.setItem('habits', JSON.stringify(filteredHabits));
+      
       await loadHabits();
       console.log('Habit deleted successfully');
     } catch (error) {
