@@ -77,8 +77,7 @@ export default function Habits() {
     const enrichedHabits = storedHabits.map(addStreakDataToHabit);
     setHabits(enrichedHabits);
   }
-
-  const handleAddHabit = async () => {
+   const handleAddHabit = async () => {
     if (!isValidHabitName(habitName)) {
       alert('Please enter a valid habit name.');
       return;
@@ -93,7 +92,7 @@ export default function Habits() {
 
       resetFormAndCloseModal();
     } catch (error: any) {
-      alert(error.message || 'Failed to add habit.');
+      alert(getErrorMessage(error) || 'Failed to add habit.');
     }
   }
 
@@ -137,25 +136,25 @@ export default function Habits() {
       alert(message);
       await loadHabitsfromStorage();
     } catch (error: any) {
-      alert(error.message || 'Failed to mark as complete.');
+      alert(getErrorMessage(error) || 'Failed to mark as complete.');
     }
   }
 
   const deleteHabit = async (habitId: string) => {
     try {
       habitManager.deleteHabit(habitId);
-
-      const existingHabits = await AsyncStorage.getItem('habits');
-      const habits: Habit[] = existingHabits ? JSON.parse(existingHabits) : [];
-      const filteredHabits = habits.filter(habit => habit.id !== habitId);
-      await AsyncStorage.setItem('habits', JSON.stringify(filteredHabits));
-
+      await removeHabitFromStorage(habitId);
       await loadHabitsfromStorage();
-      console.log('Habit deleted successfully');
     } catch (error) {
       console.error('Error deleting habit:', error);
       alert('Failed to delete habit.');
     }
+  }
+
+  async function removeHabitFromStorage(habitId: string) {
+    const existingHabits = await loadStoredHabits();
+    const filteredHabits = existingHabits.filter((habit: Habit) => habit.id !== habitId);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filteredHabits));
   }
 
   const confirmDelete = (habitId: string, habitName: string) => {
@@ -194,6 +193,11 @@ export default function Habits() {
     } catch (error: any) {
       alert(error.message);
     }
+  }
+
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return 'An error occurred';
   }
 
   return (
