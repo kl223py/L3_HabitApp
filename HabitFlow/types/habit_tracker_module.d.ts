@@ -1,3 +1,6 @@
+// habit_tracker_module.d.ts
+// Placera denna fil i HabitFlow/types/ mappen
+
 declare module 'habit_tracker_module' {
   export interface HabitOptions {
     allowMissedDays?: boolean;
@@ -10,28 +13,29 @@ declare module 'habit_tracker_module' {
     completions: Date[];
     allowMissedDays: boolean;
     maxMissedDays: number;
-    addCompletion(date?: Date): boolean;
+    addCompletion(date: Date): boolean;
     removeCompletion(date: Date): boolean;
     getCompletions(): Date[];
     hasCompletionOnDate(date: Date): boolean;
   }
 
-  export class HabitManager {
+  export default class HabitManager {
     constructor();
     
     createHabit(habitId: string, name: string, options?: HabitOptions): Habit;
-
+    
+    addCompletion(habitId: string, date?: Date): boolean;
+    
+    removeCompletion(habitId: string, date: Date): boolean;
+    
     getCurrentStreak(habitId: string): number;
-
-    isStreakbroken(habitId: string): boolean;
-
-    getHabit(habitId: string): Habit | undefined
+    
+    isStreakBroken(habitId: string): boolean;
+    
+    getHabit(habitId: string): Habit | undefined;
     
     getAllHabits(): Habit[];
-
+    
     deleteHabit(habitId: string): boolean;
   }
-
-  const habitManager: HabitManager;
-  export default habitManager;
 }

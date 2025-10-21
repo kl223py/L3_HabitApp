@@ -1,7 +1,9 @@
 import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Switch, FlatList, Alert } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HabitManager from 'habit_tracker_module'; 
+import HabitManager from 'habit_tracker_module';
+
+const habitManager = new HabitManager();
 
 interface Habit {
   id: string;
@@ -26,7 +28,7 @@ export default function Habits() {
         const habits: Habit[] = JSON.parse(storedHabits);
         habits.forEach(habit => {
           try {
-            HabitManager.createHabit(
+            habitManager.createHabit(
               habit.id,
               habit.description,
               habit.allowMissedDays ? {
