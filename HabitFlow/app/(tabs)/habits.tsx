@@ -388,8 +388,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   completeButton: {
-    width: 40,
-    height: 40,
+    width: 35,
+    height: 35,
     borderRadius: 18,
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
@@ -397,21 +397,22 @@ const styles = StyleSheet.create({
   },
   completeButtonText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   deleteButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 35,
+    height: 35,
+    borderRadius: 18,
     backgroundColor: '#FF6B6B',
     justifyContent: 'center',
     alignItems: 'center',
   },
   deleteButtonText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    lineHeight: 28,
   },
   addButton: {
     position: 'absolute',
