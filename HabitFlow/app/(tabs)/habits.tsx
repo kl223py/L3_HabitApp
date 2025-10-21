@@ -181,7 +181,7 @@ export default function Habits() {
       if (!habit) return;
 
       const details = formatHabitDetailsMessage(habit, habitId);
-      Alert.alert(habit.name, details, [{ text: 'OK'}]);
+      Alert.alert(habit.name, details, [{ text: 'OK' }]);
     } catch (error: any) {
       alert(getErrorMessage(error) || 'Failed to load habit details.');
     }
@@ -203,55 +203,71 @@ export default function Habits() {
     return 'An error occurred';
   }
 
-  return (
-    <View style={styles.container}>
-      {habits.length === 0 ? (
-        <Text style={styles.instructionsText}>
-          To add a new habit, press the &quot;+&quot; button below.
-        </Text>
-      ) : (
-        <FlatList
-          data={habits}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.habitCard}
-              onLongPress={() => showHabitDetails(item.id)}
-            >
+  function renderHabitCard({ item }: { item: Habit }) {
+    return (
+      <TouchableOpacity
+        style={styles.habitCard}
+        onLongPress={() => showHabitDetails(item.id)}
+      >
 
-              <View style={styles.habitInfo}>
-                <Text style={styles.habitName}>{item.name}</Text>
-                <Text style={styles.habitDescription}>{item.description}</Text>
-                <Text style={styles.habitDetails}>
-                  Streak: {item.currentStreak || 0} Days
-                  {item.isStreakBroken && '(Broken)'}
-                </Text>
-                {item.allowMissedDays && (
-                  <Text style={styles.habitDetails}>
-                    Max missed days: {item.maxMissedDays} days
-                  </Text>
-                )}
-              </View>
-              <View style={styles.buttonGroup}>
-                <TouchableOpacity
-                  style={styles.completeButton}
-                  onPress={() => markHabitComplete(item.id)}
-                >
-                  <Text style={styles.completeButtonText}>✓</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => confirmDelete(item.id, item.name)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.deleteButtonText}>×</Text>
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
+        <View style={styles.habitInfo}>
+          <Text style={styles.habitName}>{item.name}</Text>
+          <Text style={styles.habitDescription}>{item.description}</Text>
+          <Text style={styles.habitDetails}>
+            Streak: {item.currentStreak || 0} Days
+            {item.isStreakBroken && '(Broken)'}
+          </Text>
+          {item.allowMissedDays && (
+            <Text style={styles.habitDetails}>
+              Max missed days: {item.maxMissedDays} days
+            </Text>
           )}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
+        </View>
+        <View style={styles.buttonGroup}>
+          <TouchableOpacity
+            style={styles.completeButton}
+            onPress={() => markHabitComplete(item.id)}
+          >
+            <Text style={styles.completeButtonText}>✓</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => confirmDelete(item.id, item.name)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.deleteButtonText}>×</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    )
+  }
+
+  function renderEmptyState() {
+    return (
+      <Text style={styles.instructionsText}>
+        To add a new habit, press the &quot;+&quot; button below.
+      </Text>
+    )
+  }
+
+  function renderHabitList() {
+    if (habits.length === 0) {
+      return renderEmptyState();
+    }
+
+    return (
+      <FlatList
+        data={habits}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (renderHabitCard({ item }))}
+        contentContainerStyle={styles.listContainer}
+      />
+    )
+  }
+
+return (
+    <View style={styles.container}>
+      {renderHabitList()}
 
       <TouchableOpacity
         style={styles.addButton}
@@ -324,7 +340,7 @@ export default function Habits() {
           </View>
         </View>
       </Modal>
-    </View>
+    </View >
   );
 }
 
