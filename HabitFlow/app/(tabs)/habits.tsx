@@ -34,24 +34,25 @@ export default function Habits() {
     }
   }
 
+  function registerHabitInManager(habit: Habit) {
+    try {
+      const options = habit.allowMissedDays
+        ? { allowMissedDays: true, maxMissedDays: habit.maxMissedDays || 0 }
+        : undefined;
+
+      habitManager.createHabit(habit.id, habit.description, options);
+    } catch (error) {
+      console.error(`Error registering habit ${habit.id}:`, error);
+    }
+  }
+
   useEffect(() => {
     const initializeHabitManager = async () => {
       const storedHabits = await loadStoredHabits();
       if (storedHabits) {
         const habits: Habit[] = JSON.parse(storedHabits);
         habits.forEach(habit => {
-          try {
-            habitManager.createHabit(
-              habit.id,
-              habit.description,
-              habit.allowMissedDays ? {
-                allowMissedDays: habit.allowMissedDays,
-                maxMissedDays: habit.maxMissedDays || 0,
-              } : undefined
-            );
-          } catch (error) {
-            console.error(`Error initializing habit ${habit.id}:`, error);
-          }
+          storedHabits.forEach(registerHabitInManager)
         })
       }
     }
